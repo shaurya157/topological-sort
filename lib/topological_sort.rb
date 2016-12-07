@@ -6,17 +6,16 @@ require_relative 'graph'
 def topological_sort(vertices)
   in_edge_counts = {}
   queue = []
+  sorted = []
 
-  vertices.each do |v|
-    in_edge_counts[v] = v.in_edges.length
-    queue << v if v.in_edges.empty?
+  vertices.each do |vertex|
+    queue << vertex if vertex.in_edges.empty?
+    in_edge_counts[vertex] = vertex.in_edges.length
   end
-
-  sorted_vertices = []
 
   until queue.empty?
     vertex = queue.shift
-    sorted_vertices << vertex
+    sorted << vertex
 
     vertex.out_edges.each do |edge|
       to_vertex = edge.to_vertex
@@ -26,7 +25,29 @@ def topological_sort(vertices)
     end
   end
 
-  sorted_vertices
+  sorted
 end
 
 # Tarjan
+
+def topological_sort_tarjan(vertices)
+  ordering = []
+  explored = Set.new
+
+  vertices.each do |vertex|
+    dfs!(vertex, explored, ordering) unless explored.include?(vertex)
+  end
+
+  ordering
+end
+
+def dfs!(vertex, explored, ordering)
+  explored.add(vertex)
+
+  vertex.out_edges.each do |edge|
+    v = edge.to_vertex
+    dfs!(v, explored, ordering) unless explored.include?(v)
+  end
+
+  ordering.unshift(vertex)
+end
